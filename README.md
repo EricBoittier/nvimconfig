@@ -1,71 +1,136 @@
-# Neovim Setup with Lazy.vim
+# Neovim config
+
+My personal Neovim setup — [lazy.nvim](https://github.com/folke/lazy.nvim) plugin
+manager, [tokyodark](https://github.com/tiagovla/tokyodark.nvim) theme, LSP via
+Mason, and a LaTeX workflow built on VimTeX + Sioyek.
+
+Originally based on [slydragonn/nvim-lazy](https://github.com/slydragonn/nvim-lazy)
+(hence the `lua/slydragonn/` namespace), since diverged.
 
 ![neovim setup](./images/lazy.jpg)
 
-## 🚀 Installation
+## Requirements
 
-1. Clone the repository:
+- Neovim >= 0.10
+- A [Nerd Font](https://www.nerdfonts.com/font-downloads) in your terminal
+- Git, a C compiler, and `make` (for treesitter parsers and `avante.nvim`)
+- Node.js + npm (for the TS/web language servers and Copilot)
+- Optional, for LaTeX: `latexmk`, `sioyek`, and `neovim-remote` (`pipx install neovim-remote`)
+
+## Install on a new machine
 
 ```bash
-git clone https://github.com/slydragonn/nvim-lazy.git
+git clone https://github.com/EricBoittier/nvimconfig.git ~/.config/nvim
+nvim
 ```
 
-2. Move nvim directory to:
+This is a private repo, so the clone will ask for credentials — use a personal
+access token with `repo` scope as the password, or swap in the SSH remote
+(`git@github.com:EricBoittier/nvimconfig.git`) once that machine's key is added
+to your GitHub account.
 
-- **Windows**: `$env:LOCALAPPDATA\+`
+On first launch lazy.nvim bootstraps itself, installs every plugin at the exact
+versions pinned in `lazy-lock.json`, and Mason pulls the language servers and
+formatters. Let it finish, then restart.
 
-- **Linux**: `~/.config/`
+To update plugins: `:Lazy sync`, then commit the refreshed `lazy-lock.json` so
+your other machines land on the same versions.
 
-## 📚 Articles
-
-- [Ultimate Neovim Setup Guide: lazy.nvim Plugin Manager](https://dev.to/slydragonn/ultimate-neovim-setup-guide-lazynvim-plugin-manager-23b7)
-
-## ⚙ Requirements
-
-- Neovim >= v0.10.0
-- [Nerd Fonts](https://www.nerdfonts.com/font-downloads)
-- NodeJS with npm
-- [Lazy.vim](https://github.com/folke/lazy.nvim)
-- A C compiler in your path and libstdc++ installed: [Windows support](https://github.com/nvim-treesitter/nvim-treesitter/wiki/Windows-support)
-- [Git](https://git-scm.com/downloads)
-
-## 📚 Project Structure
+## Layout
 
 ```
-📂 nvim/
-├── 📂 lua/📂 slydragonn/
-│	 └── 📂 plugins/
-│        └── 📂 lsp/
-│        └── ...pluginconfigfiles
-│	 └── 🌑 settings.lua
-│	 └── 🌑 maps.lua
-│    └── 🌑 lazy.lua
-└── 🌑 init.lua
+nvim/
+├── init.lua                     entry point + LaTeX autocmd
+└── lua/slydragonn/
+    ├── settings.lua             vim options
+    ├── maps.lua                 core keymaps (leader = space)
+    ├── lazy.lua                 plugin-manager bootstrap
+    └── plugins/                 one file per plugin, auto-imported
+        └── lsp/                 lspconfig + mason
 ```
 
-### ✨ Features
+Everything in `plugins/` is picked up automatically by the `{ import = ... }`
+calls in `lazy.lua` — to add a plugin, drop in a new file returning a lazy spec.
 
-- [folke/lazy.nvim](https://github.com/folke/lazy.nvim): A modern plugin manager for Neovim
-- [nvim-neo-tree/neo-tree](https://github.com/nvim-neo-tree/neo-tree.nvim): Neovim plugin to manage the file system and other tree like structures.
-- [tiagovla/tokyodark.nvim](https://github.com/tiagovla/tokyodark.nvim): A clean dark theme written in lua for neovim.
-- [nvim-tree/nvim-web-devicons](https://github.com/nvim-tree/nvim-web-devicons): lua fork of vim-web-devicons for neovim.
-- [nvim-lualine/lualine.nvim](https://github.com/nvim-lualine/lualine.nvim): A blazing fast and easy to configure neovim statusline plugin written in pure lua.
-- [nvim-treesitter/nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter): Nvim Treesitter configurations and abstraction layer.
-- [windwp/nvim-ts-autotag](https://github.com/windwp/nvim-ts-autotag): Use treesitter to auto close and auto rename html tag.
-- [stevearc/conform.nvim](https://github.com/stevearc/conform.nvim): Lightweight yet powerful formatter plugin for Neovim.
-- [nvim-telescope/telescope.nvim](https://github.com/nvim-telescope/telescope.nvim): Highly extendable fuzzy finder over lists.
-- [neovim/nvim-lspconfig](https://github.com/neovim/nvim-lspconfig): Quickstart configs for Nvim LSP
-- [hrsh7th/nvim-cmp](https://github.com/hrsh7th/nvim-cmp): A completion plugin for neovim coded in Lua.
-- [williamboman/mason.nvim](https://github.com/williamboman/mason.nvim): Portable package manager for Neovim that runs everywhere Neovim runs.
-- [norcalli/nvim-colorizer.lua](https://github.com/norcalli/nvim-colorizer.lua): Color highlighter.
-- [akinsho/toggleterm.nvim](https://github.com/akinsho/toggleterm.nvim): A neovim lua plugin to help easily manage multiple terminal windows.
-- [lewis6991/gitsigns.nvim](https://github.com/lewis6991/gitsigns.nvim): Git integration for buffers.
-- [windwp/nvim-autopairs](https://github.com/windwp/nvim-autopairs): Autopairs for neovim written by lua.
-- [onsails/lspkind.nvim](https://github.com/onsails/lspkind.nvim): vscode-like pictograms for neovim lsp completion items.
-- [L3MON4D3/LuaSnip](https://github.com/L3MON4D3/LuaSnip): Snippet Engine for Neovim written in Lua.
-- [hrsh7th/cmp-nvim-lsp:](https://github.com/hrsh7th/cmp-nvim-lsp) nvim-cmp source for neovim builtin LSP client
-- [hrsh7th/cmp-path:](https://github.com/hrsh7th/cmp-path) nvim-cmp source for path
-- [hrsh7th/cmp-buffer:](https://github.com/hrsh7th/cmp-buffer) nvim-cmp source for buffer words
-- [williamboman/mason-lspconfig.nvim:](https://github.com/williamboman/mason-lspconfig.nvim) Extension to mason.nvim that makes it easier to use lspconfig with mason.nvim.
-- [WhoIsSethDaniel/mason-tool-installer.nvim:](https://github.com/WhoIsSethDaniel/mason-tool-installer.nvim) Install and upgrade third party tools automatically.
-# nvimconfig
+## Keymaps
+
+Leader is <kbd>Space</kbd>.
+
+### Editing & windows
+
+| Key | Action |
+| --- | --- |
+| `<leader>w` | Save |
+| `<leader>q` | Quit |
+| `jk` (insert) | Escape to normal mode |
+| `<leader>o` / `<leader>p` | Split vertical / horizontal |
+| `<C-h/j/k/l>` | Move between windows |
+| `<C-arrows>` | Resize window |
+| `<leader>f` | Format file (or selection in visual mode) |
+| `<F7>` | Floating terminal |
+
+### Files & search
+
+| Key | Action |
+| --- | --- |
+| `<leader>e` / `<leader>r` | Toggle / focus Neo-tree |
+| `<leader>ff` | Find files |
+| `<leader>fg` | Live grep |
+| `<leader>fb` | Buffers |
+| `<leader>fs` / `<leader>fc` | Git status / commits |
+
+### LSP
+
+| Key | Action |
+| --- | --- |
+| `gd` / `gD` | Definitions / declaration |
+| `gR` / `gi` / `gt` | References / implementations / type definitions |
+| `K` | Hover docs |
+| `<leader>ca` | Code actions |
+| `<leader>rn` | Rename symbol |
+| `<leader>d` / `<leader>D` | Line / buffer diagnostics |
+| `[d` / `]d` | Previous / next diagnostic |
+| `<leader>rs` | Restart LSP |
+
+### Git & sessions
+
+| Key | Action |
+| --- | --- |
+| `<leader>gg` | Neogit UI |
+| `<leader>ws` / `<leader>wr` | Save / restore session for cwd |
+
+### Copilot
+
+| Key | Action |
+| --- | --- |
+| `<C-j>` (insert) | Accept suggestion |
+| `<C-k>` (insert) | Reject suggestion |
+
+Tab is deliberately left alone (`copilot_no_tab_map`). Run `:Copilot setup` once
+per machine to authenticate.
+
+## Language support
+
+Language servers installed by Mason: `cssls`, `eslint`, `html`, `jsonls`,
+`ts_ls`, `pyright`, `tailwindcss`.
+
+Formatters (run on save via `conform.nvim`): `prettier` for web/JSON/YAML/
+Markdown, `stylua` for Lua, `isort` + `black` for Python.
+
+Treesitter parsers include the above plus `bash`, `fortran`, `dockerfile`, `vim`.
+
+## LaTeX
+
+`vimtex.lua` compiles with `latexmk -lualatex` and previews in Sioyek with
+forward/inverse search wired through `nvr`. `init.lua` also sets `textwidth=65`
+with auto-wrapping in `tex` buffers.
+
+## Notes
+
+- `lazy-lock.json` **is** committed on purpose — it's what keeps machines in sync.
+- `.luarc.json` files are gitignored: lua_ls regenerates them with absolute
+  `$HOME` paths, so they can't be shared.
+- `pack/` is gitignored. It used to carry a second, vendored copy of
+  `copilot.vim` that lazy.nvim already manages; plugins belong in `plugins/`.
+- `nvim-lazy/` is gitignored — a leftover clone of the upstream template, kept
+  locally for reference only.

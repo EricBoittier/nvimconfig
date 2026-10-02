@@ -1,0 +1,18 @@
+# Machine-specific lua_ls workspace config (contains absolute $HOME paths)
+.luarc.json
+lua/.luarc.json
+
+# Upstream template clone (github.com/slydragonn/nvim-lazy) — reference only
+nvim-lazy/
+
+# Vendored vim packages: plugins are managed by lazy.nvim instead
+pack/
+
+# Local overrides, not shared between machines
+lua/slydragonn/local.lua
+
+# Editor / OS noise
+*.swp
+*.swo
+.DS_Store
+spell/
