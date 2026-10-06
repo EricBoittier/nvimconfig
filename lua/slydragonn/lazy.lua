@@ -11,7 +11,10 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({ { import = "slydragonn.plugins" }, { import = "slydragonn.plugins.lsp" } }, {
+require("lazy").setup({ { import = "slydragonn.plugins" }, { import = "slydragonn.plugins.lsp" }, {
+  "martinsgmx/nvim-oc-companion",
+  dependencies = { "nvim-lua/plenary.nvim" },
+}, }, {
 	checker = {
 		enabled = true,
 		notify = false,
