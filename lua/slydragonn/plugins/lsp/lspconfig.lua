@@ -7,6 +7,9 @@ return {
 		{ "folke/neodev.nvim", opts = {} },
 	},
 	config = function()
+		-- import mason_lspconfig plugin
+		local mason_lspconfig = require("mason-lspconfig")
+
 		-- import cmp-nvim-lsp plugin
 		local cmp_nvim_lsp = require("cmp_nvim_lsp")
 
@@ -48,10 +51,10 @@ return {
 				keymap.set("n", "<leader>d", vim.diagnostic.open_float, opts) -- show diagnostics for line
 
 				opts.desc = "Go to previous diagnostic"
-				keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, opts) -- jump to previous diagnostic in buffer
+				keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
 
 				opts.desc = "Go to next diagnostic"
-				keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, opts) -- jump to next diagnostic in buffer
+				keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
 				opts.desc = "Show documentation for what is under cursor"
 				keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
 
@@ -69,63 +72,57 @@ return {
 		}
 
 		-- Change the Diagnostic symbols in the sign column (gutter)
-		vim.diagnostic.config({
-			signs = {
-				text = {
-					[vim.diagnostic.severity.ERROR] = " ",
-					[vim.diagnostic.severity.WARN] = " ",
-					[vim.diagnostic.severity.HINT] = "󰠠 ",
-					[vim.diagnostic.severity.INFO] = " ",
-				},
-			},
-		})
+		-- (not in youtube nvim video)
+		local signs = { Error = " ", Warn = " ", Hint = "󰠠 ", Info = " " }
+		for type, icon in pairs(signs) do
+			local hl = "DiagnosticSign" .. type
+			vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
+		end
 
-		-- default config for every server; mason-lspconfig (v2) auto-enables installed servers
-		vim.lsp.config("*", {
-			capabilities = capabilities,
-		})
+		for _, server_name in ipairs(mason_lspconfig.get_installed_servers()) do
+			if server_name ~= "stylua" then
+				vim.lsp.config(server_name, { capabilities = capabilities })
+				vim.lsp.enable(server_name)
+			end
+		end
 
 		vim.lsp.config("svelte", {
+			capabilities = capabilities,
 			on_attach = function(client, bufnr)
 				vim.api.nvim_create_autocmd("BufWritePost", {
 					pattern = { "*.js", "*.ts" },
 					callback = function(ctx)
-						-- Here use ctx.match instead of ctx.file
 						client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
 					end,
 				})
 			end,
 		})
+		vim.lsp.enable("svelte")
 
 		vim.lsp.config("graphql", {
+			capabilities = capabilities,
 			filetypes = { "graphql", "gql", "svelte", "typescriptreact", "javascriptreact" },
 		})
+		vim.lsp.enable("graphql")
 
 		vim.lsp.config("emmet_ls", {
+			capabilities = capabilities,
 			filetypes = {
-				"html",
-				"typescriptreact",
-				"javascriptreact",
-				"css",
-				"sass",
-				"scss",
-				"less",
-				"svelte",
+				"html", "typescriptreact", "javascriptreact", "css",
+				"sass", "scss", "less", "svelte",
 			},
 		})
+		vim.lsp.enable("emmet_ls")
 
 		vim.lsp.config("lua_ls", {
+			capabilities = capabilities,
 			settings = {
 				Lua = {
-					-- make the language server recognize "vim" global
-					diagnostics = {
-						globals = { "vim" },
-					},
-					completion = {
-						callSnippet = "Replace",
-					},
+					diagnostics = { globals = { "vim" } },
+					completion = { callSnippet = "Replace" },
 				},
 			},
 		})
+		vim.lsp.enable("lua_ls")
 	end,
 }

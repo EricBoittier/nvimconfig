@@ -1,7 +1,8 @@
 return {
-	"lervag/vimtex",
-	ft = { "tex", "bib" }, -- for lazy loading
-	config = function()
+	{
+		"lervag/vimtex",
+		ft = { "tex", "bib" }, -- for lazy loading
+		config = function()
 		vim.cmd("syntax enable")
 		vim.cmd("let g:vimtex_view_general_viewer='sioyek'")
 		-- %1: file, %2: line number
@@ -17,5 +18,19 @@ return {
 			"let g:vimtex_compiler_latexmk = { 'executable': 'latexmk', 'options': [ '-pdf', '-lualatex', '-file-line-error', '-synctex=1' ] }"
 		vim.cmd(command_lualatex)
 		--vim.cmd("let g:vimtex_compiler_progname='nvr'")
-	end,
+		end,
+	},
+	{
+		"jbyuki/nabla.nvim",
+		ft = { "tex", "markdown" },
+		keys = {
+			{
+				"<leader>pv",
+				function()
+					require("nabla").popup()
+				end,
+				desc = "Preview math (nabla)",
+			},
+		},
+	},
 }

@@ -10,6 +10,7 @@ return {
 		"stevearc/dressing.nvim",
 		"nvim-lua/plenary.nvim",
 		"MunifTanjim/nui.nvim",
+		{ "ColinKennedy/mega.cmdparse", dependencies = { "ColinKennedy/mega.logging" } },
 		--- The below is optional, make sure to setup it properly if you have lazy=true
 		{
 			"MeanderingProgrammer/render-markdown.nvim",
