@@ -47,6 +47,7 @@ nvim/
     ├── lazy.lua                 plugin-manager bootstrap
     └── plugins/                 one file per plugin, auto-imported
         └── lsp/                 lspconfig + mason
+kitty/                           kitty terminal config (see below)
 ```
 
 Everything in `plugins/` is picked up automatically by the `{ import = ... }`
@@ -124,6 +125,28 @@ Treesitter parsers include the above plus `bash`, `fortran`, `dockerfile`, `vim`
 `vimtex.lua` compiles with `latexmk -lualatex` and previews in Sioyek with
 forward/inverse search wired through `nvr`. `init.lua` also sets `textwidth=65`
 with auto-wrapping in `tex` buffers.
+
+## Kitty
+
+`kitty/` holds my [kitty](https://sw.kovidgoyal.net/kitty/) terminal config:
+
+| File | Purpose |
+| --- | --- |
+| `kitty.conf` | Main config (FiraCode 17pt, 0.95 opacity + blur, remote control on) |
+| `theme.conf` | Active color theme (Floraverse, from [dexpota/kitty-themes](https://github.com/dexpota/kitty-themes)) |
+| `open-actions.conf` | What clicked links open (web/HTML/PDF/images → Chrome, dirs → Finder) |
+| `startup.conf` / `startup.sh` | Startup session |
+
+To install on a new machine, symlink it into place:
+
+```bash
+ln -s ~/.config/nvim/kitty ~/.config/kitty
+```
+
+Locally `theme.conf` is a symlink into a clone of `kitty-themes`; the repo
+stores the resolved file so it works without that clone. To try other themes,
+`git clone https://github.com/dexpota/kitty-themes ~/.config/kitty/kitty-themes`
+and re-point `theme.conf`.
 
 ## Notes
 
