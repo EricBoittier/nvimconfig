@@ -48,6 +48,7 @@ nvim/
     └── plugins/                 one file per plugin, auto-imported
         └── lsp/                 lspconfig + mason
 kitty/                           kitty terminal config (see below)
+fish/                            fish shell config
 ```
 
 Everything in `plugins/` is picked up automatically by the `{ import = ... }`
@@ -147,6 +148,15 @@ Locally `theme.conf` is a symlink into a clone of `kitty-themes`; the repo
 stores the resolved file so it works without that clone. To try other themes,
 `git clone https://github.com/dexpota/kitty-themes ~/.config/kitty/kitty-themes`
 and re-point `theme.conf`.
+
+## Fish
+
+`fish/config.fish` holds my fish shell config (currently just the `conda init`
+hook). Install it the same way:
+
+```bash
+ln -s ~/.config/nvim/fish ~/.config/fish
+```
 
 ## Notes
 
