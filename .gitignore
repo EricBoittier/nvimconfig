@@ -13,3 +13,6 @@ lua/slydragonn/local.lua
 *.swo
 .DS_Store
 spell/
+
+# Third-party theme collection, cloned separately (see README)
+kitty/kitty-themes/
