@@ -1,7 +1,7 @@
 # Neovim config
 
 My personal Neovim setup — [lazy.nvim](https://github.com/folke/lazy.nvim) plugin
-manager, [tokyodark](https://github.com/tiagovla/tokyodark.nvim) theme, LSP via
+manager, [kitty-themes](https://github.com/odysseyalive/kitty-themes.nvim) (SeaShells) theme, LSP via
 Mason, and a LaTeX workflow built on VimTeX + Sioyek.
 
 Originally based on [slydragonn/nvim-lazy](https://github.com/slydragonn/nvim-lazy)
@@ -132,5 +132,3 @@ with auto-wrapping in `tex` buffers.
   `$HOME` paths, so they can't be shared.
 - `pack/` is gitignored. It used to carry a second, vendored copy of
   `copilot.vim` that lazy.nvim already manages; plugins belong in `plugins/`.
-- `nvim-lazy/` is gitignored — a leftover clone of the upstream template, kept
-  locally for reference only.

@@ -2,9 +2,6 @@
 .luarc.json
 lua/.luarc.json
 
-# Upstream template clone (github.com/slydragonn/nvim-lazy) — reference only
-nvim-lazy/
-
 # Vendored vim packages: plugins are managed by lazy.nvim instead
 pack/
 
