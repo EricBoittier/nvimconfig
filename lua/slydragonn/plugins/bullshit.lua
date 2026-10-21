@@ -1,7 +1,11 @@
 return {
 	"yetone/avante.nvim",
 	event = "VeryLazy",
-	build = "make", -- This is Optional, only if you want to use tiktoken_core to calculate tokens count
+	-- Build native libs from source: the prebuilt macOS release links against a
+	-- /nix/store libiconv. Needs rustup's rustc (Homebrew's is too old) and Apple
+	-- clang (/usr/local/bin/c++ is GCC, which rejects -stdlib=libc++).
+	build = 'PATH="$HOME/.cargo/bin:$PATH" CC=/usr/bin/clang CXX=/usr/bin/clang++ make BUILD_FROM_SOURCE=true',
+	version = false, -- avante: never pin to "*"
 	opts = {
 		-- add any opts here
 	},

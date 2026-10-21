@@ -7,6 +7,6 @@ return {
 			transparent = true,
 			term_colors = true,
 		})
-		vim.cmd("colorscheme SeaShells")
+		vim.cmd("colorscheme ayu")
 	end,
 }
