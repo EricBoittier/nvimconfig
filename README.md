@@ -158,6 +158,34 @@ hook). Install it the same way:
 ln -s ~/.config/nvim/fish ~/.config/fish
 ```
 
+## Tmux (on remote machines)
+
+Things learned running long jobs and Claude Code sessions over ssh from kitty.
+
+- **kitty's TERM breaks tmux on servers.** kitty sets `TERM=xterm-kitty`, and most
+  HPC/lab machines have no terminfo entry for it, so `tmux` refuses to start (or
+  draws garbage). Fixes, best first:
+  - connect with `kitten ssh host` instead of `ssh host`: it copies kitty's terminfo
+    to the remote automatically (and keeps shell integration);
+  - or install it once by hand from the laptop:
+    `infocmp -a xterm-kitty | ssh host tic -x -o ~/.terminfo /dev/stdin`;
+  - or, as a stopgap, start tmux with `TERM=xterm-256color tmux ...`.
+- **Detach, don't babysit.** `Ctrl+B d` detaches; `tmux attach -t NAME` (or the
+  launcher below) gets you back. Jobs and sessions survive dropped ssh and laptop sleep.
+- **Long-running Claude Code sessions: `tmux/claude-tmux`.** Starts `claude` detached
+  in a named tmux session with Remote Control on, so the same conversation can be
+  followed and driven from the phone or claude.ai while the terminal is closed.
+  - `claude-tmux` attaches (starting the saved conversation if needed), `start` starts
+    it detached, `fresh` begins a new conversation and remembers the old id, `status`
+    shows what is running. It falls back to `xterm-256color` when the terminfo is missing.
+  - Never run the same conversation in two processes at once.
+  - `CLAUDE_TMUX_SETTINGS` points at a settings file used by this launcher only, the
+    place for session hooks: a SessionStart hook that re-injects the project's plan
+    and notes after `/compact` or `/clear`, and a PreCompact hook that snapshots
+    recently changed files, keep a long session anchored to files instead of to
+    stale context. `CLAUDE_TMUX_AUTOCOMPACT` compacts earlier to keep context lean.
+  - Install: `ln -s ~/.config/nvim/tmux/claude-tmux ~/bin/claude-tmux`.
+
 ## Notes
 
 - `lazy-lock.json` **is** committed on purpose — it's what keeps machines in sync.

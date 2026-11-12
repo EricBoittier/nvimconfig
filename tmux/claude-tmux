@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Run a long-lived Claude Code session detached in tmux, with Remote Control, so it
+# survives ssh drops and can be driven from the phone/web.
+#
+#   claude-tmux            attach (starts the saved session first if it is not running)
+#   claude-tmux start      start detached only
+#   claude-tmux fresh      start a NEW conversation and make it the saved one
+#   claude-tmux status     show the saved session id and whether tmux is running
+#   detach: Ctrl+B then d      reattach: claude-tmux
+#
+# Settings (environment):
+#   CLAUDE_TMUX_SESSION   tmux session name           (default: claude)
+#   CLAUDE_TMUX_NAME      Remote Control display name (default: "<host> · claude")
+#   CLAUDE_TMUX_DIR       working directory           (default: $HOME)
+#   CLAUDE_TMUX_SETTINGS  extra settings.json for this launcher only (hooks etc.), optional
+#   CLAUDE_TMUX_AUTOCOMPACT  auto-compact window in tokens, optional
+#
+# Never start it while another process already runs the same conversation.
+set -euo pipefail
+SESS=${CLAUDE_TMUX_SESSION:-claude}
+NAME=${CLAUDE_TMUX_NAME:-"$(hostname -s) · claude"}
+DIR=${CLAUDE_TMUX_DIR:-$HOME}
+STATE=${XDG_STATE_HOME:-$HOME/.local/state}/claude-tmux/$SESS
+mkdir -p "$STATE"
+
+# kitty sets TERM=xterm-kitty; servers without that terminfo entry make tmux fail.
+# Fall back to xterm-256color unless the entry exists (see README: `kitten ssh` or tic).
+infocmp "${TERM:-dumb}" >/dev/null 2>&1 || export TERM=xterm-256color
+
+extra=()
+[ -n "${CLAUDE_TMUX_SETTINGS:-}" ] && extra+=(--settings "$CLAUDE_TMUX_SETTINGS")
+[ -n "${CLAUDE_TMUX_AUTOCOMPACT:-}" ] && extra+=(--autocompact "$CLAUDE_TMUX_AUTOCOMPACT")
+
+running() { tmux has-session -t "$SESS" 2>/dev/null; }
+launch() {  # $@ = claude arguments selecting the conversation
+  local cmd; cmd=$(printf '%q ' claude "$@" "${extra[@]}" --remote-control "$NAME")
+  tmux new-session -d -s "$SESS" -c "$DIR" "$cmd; echo 'claude exited; press Enter'; read"
+}
+new_id() { python3 -c 'import uuid; print(uuid.uuid4())'; }
+
+[ -s "$STATE/session_id" ] || new_id > "$STATE/session_id"
+ID=$(cat "$STATE/session_id")
+
+case "${1:-attach}" in
+  attach|start)
+    if ! running; then
+      if [ -e "$STATE/started" ]; then launch --resume "$ID"; else launch --session-id "$ID"; touch "$STATE/started"; fi
+      echo "started tmux session $SESS ($ID)"
+    fi
+    [ "${1:-attach}" = start ] || exec tmux attach -t "$SESS" ;;
+  fresh)
+    running && { echo "$SESS is running; exit it first (/exit inside), then: $0 fresh" >&2; exit 1; }
+    echo "$ID" >> "$STATE/previous_ids"; ID=$(new_id); echo "$ID" > "$STATE/session_id"
+    launch --session-id "$ID"; touch "$STATE/started"
+    exec tmux attach -t "$SESS" ;;
+  status)
+    echo "session: $ID"; running && echo "tmux: running" || echo "tmux: not running"
+    [ -s "$STATE/previous_ids" ] && echo "previous: $(tr '\n' ' ' < "$STATE/previous_ids")"; true ;;
+  *) sed -n '2,20p' "$0"; exit 2 ;;
+esac
