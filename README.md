@@ -104,15 +104,22 @@ Leader is <kbd>Space</kbd>.
 
 ### Claude Code
 
-[Claude Code](https://claude.com/claude-code) runs in a vertical toggleterm split
-(`toggleterm.lua`) — this replaced `avante.nvim`.
+[claudecode.nvim](https://github.com/coder/claudecode.nvim) (replaced `avante.nvim`)
+runs [Claude Code](https://claude.com/claude-code) in a right-hand split and connects
+to it over the same IDE protocol as the VS Code extension: Claude sees your current
+selection and open file, and proposed edits open as Neovim diffs you accept or reject.
+Run `/ide` inside Claude if it doesn't connect on its own.
 
 | Key | Action |
 | --- | --- |
-| `<leader>cc` | Toggle Claude Code split |
-| `<C-\\>c` (terminal) | Hide Claude Code |
-| `<leader>cf` | Type `@<current file>` into the Claude prompt |
-| `<leader>cs` (visual) | Type `@<file>#L<a>-<b>` for the selection |
+| `<leader>cc` / `<leader>co` | Toggle / focus Claude |
+| `<leader>cr` / `<leader>cC` | Resume a conversation / continue the last one |
+| `<leader>cm` | Pick model |
+| `<leader>cf` | Add current file to context |
+| `<leader>cs` (visual) | Send selection; in Neo-tree/nvim-tree adds the file under cursor |
+| `<leader>cy` / `<leader>cn` | Accept / reject Claude's proposed diff |
+
+`<leader>ca` stays LSP code actions.
 
 ### Copilot
 
