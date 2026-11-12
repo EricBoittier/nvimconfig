@@ -24,11 +24,6 @@ git clone https://github.com/EricBoittier/nvimconfig.git ~/.config/nvim
 nvim
 ```
 
-This is a private repo, so the clone will ask for credentials — use a personal
-access token with `repo` scope as the password, or swap in the SSH remote
-(`git@github.com:EricBoittier/nvimconfig.git`) once that machine's key is added
-to your GitHub account.
-
 On first launch lazy.nvim bootstraps itself, installs every plugin at the exact
 versions pinned in `lazy-lock.json`, and Mason pulls the language servers and
 formatters. Let it finish, then restart.
