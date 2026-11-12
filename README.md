@@ -13,7 +13,7 @@ Originally based on [slydragonn/nvim-lazy](https://github.com/slydragonn/nvim-la
 
 - Neovim >= 0.10
 - A [Nerd Font](https://www.nerdfonts.com/font-downloads) in your terminal
-- Git, a C compiler, and `make` (for treesitter parsers and `avante.nvim`)
+- Git, a C compiler, and `make` (for treesitter parsers)
 - Node.js + npm (for the TS/web language servers and Copilot)
 - Optional, for LaTeX: `latexmk`, `sioyek`, and `neovim-remote` (`pipx install neovim-remote`)
 
@@ -99,7 +99,25 @@ Leader is <kbd>Space</kbd>.
 | Key | Action |
 | --- | --- |
 | `<leader>gg` | Neogit UI |
+| `<leader>gd` / `<leader>gc` | Diffview: branch vs base / commit by commit (base = `vim.g.review_base`, default `origin/main`) |
+| `<leader>gf` / `<leader>gx` | Diffview: history of this file / close |
+| `<leader>gt` | Load Claude `/triage` output into quickfix |
+| `]h` / `[h` | Next / previous hunk |
+| `<leader>hp` / `<leader>hb` | Preview hunk / blame line |
+| `<leader>op` / `<leader>or` | Octo: PR list / start review |
 | `<leader>ws` / `<leader>wr` | Save / restore session for cwd |
+
+### Claude Code
+
+[Claude Code](https://claude.com/claude-code) runs in a vertical toggleterm split
+(`toggleterm.lua`) — this replaced `avante.nvim`.
+
+| Key | Action |
+| --- | --- |
+| `<leader>cc` | Toggle Claude Code split |
+| `<C-\\>c` (terminal) | Hide Claude Code |
+| `<leader>cf` | Type `@<current file>` into the Claude prompt |
+| `<leader>cs` (visual) | Type `@<file>#L<a>-<b>` for the selection |
 
 ### Copilot
 
@@ -137,6 +155,7 @@ with auto-wrapping in `tex` buffers.
 | `theme.conf` | Active color theme (Floraverse, from [dexpota/kitty-themes](https://github.com/dexpota/kitty-themes)) |
 | `open-actions.conf` | What clicked links open (web/HTML/PDF/images → Chrome, dirs → Finder) |
 | `startup.conf` / `startup.sh` | Startup session |
+| `kmode` + `modes/` | `kmode dark\|light\|warm\|redshift\|contrast\|auto` swaps colour mode and live-reloads every kitty |
 
 To install on a new machine, symlink it into place:
 

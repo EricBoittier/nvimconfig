@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# kmode — switch kitty colour mode and live-reload all kitty instances.
+# Usage: kmode [dark|light|warm|redshift|contrast|auto]   (no arg = list)
+# Add your own: drop any theme file into ~/.config/kitty/modes/<name>.conf
+set -euo pipefail
+CFG="$HOME/.config/kitty"; MODES="$CFG/modes"
+
+if [[ $# -eq 0 ]]; then
+  echo "current: $(cat "$CFG/.kmode" 2>/dev/null || echo unknown)"
+  echo "modes:   auto $(ls "$MODES" | sed 's/\.conf$//' | tr '\n' ' ')"
+  exit 0
+fi
+
+m="$1"
+if [[ $m != auto && ! -f $MODES/$m.conf ]]; then
+  echo "unknown mode: $m" >&2; exec "$0"
+fi
+
+# *.auto.conf files take precedence over kitty.conf, so clear them for manual modes
+rm -f "$CFG"/{dark,light,no-preference}-theme.auto.conf
+
+if [[ $m == auto ]]; then
+  # follow macOS appearance: dark <-> light
+  cp "$MODES/dark.conf"  "$CFG/dark-theme.auto.conf"
+  cp "$MODES/light.conf" "$CFG/light-theme.auto.conf"
+  cp "$MODES/dark.conf"  "$CFG/no-preference-theme.auto.conf"
+else
+  cp "$MODES/$m.conf" "$CFG/current-theme.conf"
+fi
+
+echo "$m" > "$CFG/.kmode"
+pkill -USR1 -x kitty || true   # SIGUSR1 makes kitty reload its config
+echo "kitty mode → $m"
