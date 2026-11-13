@@ -9,6 +9,20 @@ return {
 		vim.g.loaded_netrwPlugin = 1
 
 		nvimtree.setup({
+			-- keep all default mappings, plus `gn` = open Neogit for this folder
+			on_attach = function(bufnr)
+				local api = require("nvim-tree.api")
+				api.config.mappings.default_on_attach(bufnr)
+				vim.keymap.set("n", "gn", function()
+					local node = api.tree.get_node_under_cursor()
+					if not node or not node.absolute_path then
+						return
+					end
+					local dir = node.type == "directory" and node.absolute_path
+						or vim.fn.fnamemodify(node.absolute_path, ":h")
+					require("neogit").open({ cwd = dir })
+				end, { buffer = bufnr, noremap = true, silent = true, nowait = true, desc = "nvim-tree: Neogit here" })
+			end,
 			view = {
 				width = 35,
 				relativenumber = true,
