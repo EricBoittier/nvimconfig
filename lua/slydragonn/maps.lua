@@ -27,6 +27,15 @@ map("n", "<C-l>", "<C-w>l")
 map("n", "<C-k>", "<C-w>k")
 map("n", "<C-j>", "<C-w>j")
 
+-- Leaving terminal windows (Claude Code, toggleterm, ...)
+-- Ctrl-w <dir> works straight from terminal mode (gives up Ctrl-w delete-word in the shell)
+map("t", "<C-w>", "<C-\\><C-n><C-w>")
+-- Alt-h/j/k/l jumps out of a terminal in one keystroke (kitty: left Option = Alt)
+map("t", "<A-h>", "<C-\\><C-n><C-w>h")
+map("t", "<A-j>", "<C-\\><C-n><C-w>j")
+map("t", "<A-k>", "<C-\\><C-n><C-w>k")
+map("t", "<A-l>", "<C-\\><C-n><C-w>l")
+
 -- Resize Windows
 map("n", "<C-Left>", "<C-w><")
 map("n", "<C-Right>", "<C-w>>")
