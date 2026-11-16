@@ -17,6 +17,9 @@ spell/
 # Third-party theme collection, cloned separately (see README)
 kitty/kitty-themes/
 
+# Machine-local base theme (symlink into kitty-themes on this box)
+kitty/theme.conf
+
 # kitty runtime state written by kitty/kmode
 kitty/.kmode
 kitty/current-theme.conf
