@@ -153,8 +153,9 @@ with auto-wrapping in `tex` buffers.
 
 | File | Purpose |
 | --- | --- |
-| `kitty.conf` | Main config (FiraCode 17pt, 0.95 opacity + blur, remote control on) |
-| `theme.conf` | Active color theme (Floraverse, from [dexpota/kitty-themes](https://github.com/dexpota/kitty-themes)) |
+| `kitty.conf` | Main config (FiraCode 17pt, 0.72 opacity + blur, aurora wallpaper, remote control on) |
+| `backgrounds/aurora.png` | Wallpaper behind the translucent background (Dracula-palette blobs) |
+| `theme.conf` | Active color theme (Dracula, from [dexpota/kitty-themes](https://github.com/dexpota/kitty-themes)) |
 | `open-actions.conf` | What clicked links open (web/HTML/PDF/images → Chrome, dirs → Finder) |
 | `startup.conf` / `startup.sh` | Startup session |
 | `kmode` + `modes/` | `kmode dark\|light\|warm\|redshift\|contrast\|auto` swaps colour mode and live-reloads every kitty |
@@ -169,6 +170,56 @@ Locally `theme.conf` is a symlink into a clone of `kitty-themes`; the repo
 stores the resolved file so it works without that clone. To try other themes,
 `git clone https://github.com/dexpota/kitty-themes ~/.config/kitty/kitty-themes`
 and re-point `theme.conf`.
+
+## Ricing (bash, prompt, opening screen)
+
+The aesthetic layer. Everything lives in this repo and is symlinked into place:
+
+| Repo path | Linked to | Purpose |
+| --- | --- | --- |
+| `shell/ricing.sh` | sourced from `~/.bashrc` or `~/.zshrc` | Opening banner (once per top-level shell), modern-tool aliases, starship/zoxide/fzf init. Works in bash and zsh; every optional tool is guarded. |
+| `fastfetch/config.jsonc` | `~/.config/fastfetch` | fastfetch layout for the opening screen |
+| `starship/starship.toml` | `~/.config/starship.toml` | Starship prompt (Catppuccin Macchiato, powerline-style) |
+
+Link the config files (all platforms):
+
+```bash
+ln -sfn ~/.config/nvim/fastfetch ~/.config/fastfetch
+ln -sfn ~/.config/nvim/starship/starship.toml ~/.config/starship.toml
+```
+
+Load the shell layer. Add one line to the end of your shell rc:
+
+```bash
+# bash (Ubuntu, Fedora): ~/.bashrc
+[ -f ~/.config/nvim/shell/ricing.sh ] && . ~/.config/nvim/shell/ricing.sh
+
+# zsh (macOS default): ~/.zshrc
+[ -f ~/.config/nvim/shell/ricing.sh ] && source ~/.config/nvim/shell/ricing.sh
+```
+
+On Fedora, `~/.bashrc` already loops over `~/.bashrc.d/`, so you can instead
+`ln -sfn ~/.config/nvim/shell/ricing.sh ~/.bashrc.d/ricing.sh`.
+
+Optional tools the layer picks up when present (none are required):
+
+```bash
+# Fedora
+sudo dnf install fzf zoxide eza fd-find
+# Ubuntu / Debian (eza may be missing from apt; the layer just skips it)
+sudo apt install fzf zoxide fd-find bat
+# macOS
+brew install fzf zoxide eza fd bat starship fastfetch
+```
+
+Ubuntu installs `bat` as `batcat` and `fd` as `fdfind`; the layer handles both names.
+
+The kitty `theme.conf` is machine-local and not tracked (see `.gitignore`), so on
+a new machine link a theme into place as described above, or kitty will fall back to its defaults.
+
+Switching the wallpaper: drop a PNG into `kitty/backgrounds/` and point
+`background_image` at it in `kitty.conf`. Lower `background_opacity` for more
+see-through; `background_tint` controls how much the image is washed out behind text.
 
 ## Fish
 
