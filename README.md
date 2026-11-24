@@ -21,9 +21,29 @@ Originally based on [slydragonn/nvim-lazy](https://github.com/slydragonn/nvim-la
 ## Install on a new machine
 
 ```bash
-git clone https://github.com/EricBoittier/nvimconfig.git ~/.config/nvim
-nvim
+git clone https://github.com/EricBoittier/nvimconfig.git ~/nvimconfig   # any location
+~/nvimconfig/install.sh            # no admin rights needed
+~/nvimconfig/install.sh --sudo     # also install system packages (apt/dnf/pacman)
 ```
+
+`install.sh` links nvim, kitty, fastfetch and starship into the config root, adds one
+marked block to `~/.bashrc` / `~/.zshrc` that sources `shell/ricing.sh`, installs the
+tools, and syncs plugins to `lazy-lock.json`. It is safe to re-run, and anything it
+replaces is moved to `<name>.bak-<date>`.
+
+- **Config root:** `$XDG_CONFIG_HOME`, else `~/.config`. On managed machines where
+  `~/.config` is not writable it falls back to `~/.config-writable` and exports
+  `XDG_CONFIG_HOME` from the shell rc.
+- **Without admin rights (Linux):** nvim, tree-sitter, starship, zoxide, fastfetch, eza,
+  fzf, kitty and FiraCode Nerd Font are installed as release binaries under `~/.local`.
+  A compiler, `make`, `git`, Node.js and ripgrep cannot be installed this way; the
+  script lists the ones that are missing.
+- **With `--sudo`:** the same, plus those system packages from the package manager.
+- **macOS:** everything comes from Homebrew.
+- `--no-tools` only links and wires the rc, `--no-kitty` skips the terminal and font
+  (servers), `--dry-run` prints the plan.
+
+The manual steps in the sections below describe what the script does.
 
 On first launch lazy.nvim bootstraps itself, installs every plugin at the exact
 versions pinned in `lazy-lock.json`, and Mason pulls the language servers and

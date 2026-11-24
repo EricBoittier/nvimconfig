@@ -9,6 +9,13 @@ _rice_zsh=0
 _rice_mac=0
 [[ $(uname -s) == Darwin ]] && _rice_mac=1
 
+# Config root: honours XDG_CONFIG_HOME, for machines where ~/.config is not writable.
+_rice_cfg=${XDG_CONFIG_HOME:-$HOME/.config}
+# starship only looks in ~/.config unless told otherwise.
+if [[ -z ${STARSHIP_CONFIG:-} && -f $_rice_cfg/starship.toml ]]; then
+  export STARSHIP_CONFIG=$_rice_cfg/starship.toml
+fi
+
 # ---- helpers -----------------------------------------------------------------
 
 # Colour a string with a cyan→violet 256-colour gradient.
@@ -63,7 +70,7 @@ rice_banner() {
   printf '  \e[3;38;2;128;135;162m“%s”\e[0m\n\n' "$q"
 
   if command -v fastfetch >/dev/null 2>&1; then
-    fastfetch -c "$HOME/.config/fastfetch/config.jsonc"
+    fastfetch -c "$_rice_cfg/fastfetch/config.jsonc"
   fi
 }
 
@@ -102,7 +109,7 @@ elif command -v fdfind >/dev/null 2>&1; then
   alias fd='fdfind'
 fi
 
-alias ff='fastfetch -c "$HOME/.config/fastfetch/config.jsonc"'
+alias ff='fastfetch -c "${XDG_CONFIG_HOME:-$HOME/.config}/fastfetch/config.jsonc"'
 alias weather='curl -s "wttr.in/?format=3"'
 if (( _rice_mac )); then
   alias ports='lsof -iTCP -sTCP:LISTEN -n -P'
@@ -153,7 +160,7 @@ if command -v zoxide >/dev/null 2>&1; then
   fi
 fi
 
-# Starship last so it owns the prompt. Config: ~/.config/starship.toml
+# Starship last so it owns the prompt. Config: <config root>/starship.toml
 if command -v starship >/dev/null 2>&1; then
   if (( _rice_zsh )); then
     eval "$(starship init zsh)"
