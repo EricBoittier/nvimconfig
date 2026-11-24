@@ -59,8 +59,8 @@ rice_banner() {
 
   printf '\n  '
   rice_gradient "░▒▓█ ${USER}@$(hostname -s) █▓▒░"
-  printf '\n\n  \e[1m%s, %s\e[0m  \e[90m· %s\e[0m\n' "$greet" "$USER" "$line"
-  printf '  \e[3;90m“%s”\e[0m\n\n' "$q"
+  printf '\n\n  \e[1m%s, %s\e[0m  \e[38;2;165;173;203m· %s\e[0m\n' "$greet" "$USER" "$line"
+  printf '  \e[3;38;2;128;135;162m“%s”\e[0m\n\n' "$q"
 
   if command -v fastfetch >/dev/null 2>&1; then
     fastfetch -c "$HOME/.config/fastfetch/config.jsonc"
@@ -111,6 +111,29 @@ else
 fi
 if (( _rice_zsh )); then alias reload='exec zsh'; else alias reload='exec bash'; fi
 mkcd() { mkdir -p -- "$1" && cd -- "$1"; }
+
+# ---- tmux workflow (see README "Workflow") ------------------------------------
+
+alias tm="$HOME/.config/nvim/tmux/tm"            # fuzzy project/session picker
+alias ta='tmux attach || tm'                       # back to where you were
+
+# ---- zsh: autosuggestions + syntax highlighting (when installed) -------------
+
+if (( _rice_zsh )); then
+  for _p in /opt/homebrew/share /usr/local/share /usr/share /usr/share/zsh/plugins; do
+    [[ -r $_p/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && {
+      source "$_p/zsh-autosuggestions/zsh-autosuggestions.zsh"
+      ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6e738d'
+      break
+    }
+  done
+  # syntax highlighting must be sourced last among zle plugins; starship init below is fine
+  for _p in /opt/homebrew/share /usr/local/share /usr/share /usr/share/zsh/plugins; do
+    [[ -r $_p/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && {
+      source "$_p/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"; break; }
+  done
+  unset _p
+fi
 
 # ---- prompt and navigation ---------------------------------------------------
 

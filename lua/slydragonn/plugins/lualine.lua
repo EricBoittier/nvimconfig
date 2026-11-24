@@ -14,6 +14,7 @@ return {
 			fg = "#c3ccdc",
 			bg = "#112638",
 			inactive_bg = "#2c3043",
+			semilightgray = "#8a92a7",
 		}
 
 		local my_lualine_theme = {
@@ -53,6 +54,7 @@ return {
 		lualine.setup({
 			options = {
 				theme = my_lualine_theme,
+				globalstatus = true,
 			},
 			sections = {
 				lualine_x = {

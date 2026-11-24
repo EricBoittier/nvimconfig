@@ -21,11 +21,23 @@ map("n", "<leader>r", "<CMD>Neotree focus<CR>")
 map("n", "<leader>o", "<CMD>vsplit<CR>")
 map("n", "<leader>p", "<CMD>split<CR>")
 
--- Window Navigation
-map("n", "<C-h>", "<C-w>h")
-map("n", "<C-l>", "<C-w>l")
-map("n", "<C-k>", "<C-w>k")
-map("n", "<C-j>", "<C-w>j")
+-- Window navigation (Ctrl-h/j/k/l) and resizing (Alt-h/j/k/l, Ctrl-arrows) live in
+-- plugins/smart-splits.lua so they cross seamlessly into tmux panes.
+
+-- Clear search highlight
+map("n", "<Esc>", "<CMD>nohlsearch<CR>")
+
+-- Keep the cursor centred when paging / cycling search results
+map("n", "<C-d>", "<C-d>zz")
+map("n", "<C-u>", "<C-u>zz")
+map("n", "n", "nzzzv")
+map("n", "N", "Nzzzv")
+
+-- Move selected lines up/down, keep selection when indenting
+map("v", "J", ":m '>+1<CR>gv=gv")
+map("v", "K", ":m '<-2<CR>gv=gv")
+map("v", "<", "<gv")
+map("v", ">", ">gv")
 
 -- Leaving terminal windows (Claude Code, toggleterm, ...)
 -- Ctrl-w <dir> works straight from terminal mode (gives up Ctrl-w delete-word in the shell)
@@ -36,11 +48,6 @@ map("t", "<A-j>", "<C-\\><C-n><C-w>j")
 map("t", "<A-k>", "<C-\\><C-n><C-w>k")
 map("t", "<A-l>", "<C-\\><C-n><C-w>l")
 
--- Resize Windows
-map("n", "<C-Left>", "<C-w><")
-map("n", "<C-Right>", "<C-w>>")
-map("n", "<C-Up>", "<C-w>+")
-map("n", "<C-Down>", "<C-w>-")
 
 --map("i", "<C-l>", function()
 --	require("copilot.suggestion").accept()

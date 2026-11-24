@@ -15,6 +15,7 @@ Originally based on [slydragonn/nvim-lazy](https://github.com/slydragonn/nvim-la
 - A [Nerd Font](https://www.nerdfonts.com/font-downloads) in your terminal
 - Git, a C compiler, and `make` (for treesitter parsers)
 - Node.js + npm (for the TS/web language servers and Copilot)
+- tmux >= 3.3 for the workflow below (`brew install tmux`)
 - Optional, for LaTeX: `latexmk`, `sioyek`, and `neovim-remote` (`pipx install neovim-remote`)
 
 ## Install on a new machine
@@ -43,11 +44,111 @@ nvim/
     └── plugins/                 one file per plugin, auto-imported
         └── lsp/                 lspconfig + mason
 kitty/                           kitty terminal config (see below)
+tmux/                            tmux.conf, `tm` sessionizer, claude-tmux launcher
+shell/ricing.sh                  bash/zsh layer: banner, aliases, fzf, zoxide, starship
+starship/ fastfetch/             prompt and opening-screen configs
 fish/                            fish shell config
 ```
 
 Everything in `plugins/` is picked up automatically by the `{ import = ... }`
 calls in `lazy.lua` — to add a plugin, drop in a new file returning a lazy spec.
+
+## Workflow: kitty + tmux + nvim
+
+Three layers, each doing one job:
+
+- **kitty** draws: true colour, ligatures, the translucent wallpaper, clickable links, images.
+- **tmux** keeps state: one session per project, surviving closed windows, ssh drops and reboots of kitty.
+- **nvim** edits, and shares one set of movement keys with tmux, so the pane/split boundary disappears.
+
+### One-time setup
+
+```bash
+brew install tmux fzf zoxide eza fd bat ripgrep starship fastfetch   # core
+ln -sfn ~/.config/nvim/kitty ~/.config/kitty
+mkdir -p ~/.config/tmux && ln -sfn ~/.config/nvim/tmux/tmux.conf ~/.config/tmux/tmux.conf
+ln -sfn ~/.config/nvim/starship/starship.toml ~/.config/starship.toml
+ln -sfn ~/.config/nvim/fastfetch ~/.config/fastfetch
+echo '[ -f ~/.config/nvim/shell/ricing.sh ] && source ~/.config/nvim/shell/ricing.sh' >> ~/.zshrc
+```
+
+Open nvim once so lazy.nvim installs the plugins (smart-splits must load at startup; it is
+what tells tmux a pane is running nvim).
+
+### The daily loop
+
+1. **Open kitty, type `tm`.** A fuzzy list shows running sessions first, then your recent
+   directories (zoxide) and every project under `~/Documents/github` and `~/Documents`.
+   Pick one: a session named after the folder opens with window 1 `edit` running nvim and
+   window 2 `sh`, both in the project directory. Pick it again later and you land exactly
+   where you left off. `ta` re-attaches to the last session.
+2. **Edit in nvim**, split freely. `Ctrl-h/j/k/l` moves between nvim splits *and* tmux
+   panes with the same keys: at nvim's edge it hands over to tmux, and from a shell pane it
+   steps back into nvim. `Alt-h/j/k/l` resizes the same way.
+3. **Run things next to the editor.** `prefix |` splits a shell to the right, `prefix -`
+   below, both in the current directory. Tests, servers, `claude`, logs.
+4. **Pop up tools without disturbing the layout:** `prefix g` lazygit, `` prefix ` ``
+   scratch shell, `prefix b` btop. They float over the session and vanish on exit.
+5. **Jump between projects** with `prefix f` (all projects) or `prefix s` (running sessions
+   only), each with a live preview. `ctrl-x` in the picker kills a session.
+6. **Walk away.** Close kitty, sleep the laptop: sessions keep running. `tm` brings any of
+   them back. Long Claude Code runs go in `claude-tmux` (see below).
+
+### tmux keys
+
+Prefix is `Ctrl-Space` (`Ctrl-b` also works).
+
+| Key | Action |
+| --- | --- |
+| `Ctrl-h/j/k/l` | Move between panes and nvim splits (no prefix) |
+| `Alt-h/j/k/l` | Resize panes and nvim splits (no prefix) |
+| `prefix f` / `prefix s` | Project picker / session picker (popup) |
+| `prefix \|` or `prefix \` / `prefix -` | Split right / below, same directory |
+| `prefix c` | New window, same directory |
+| `prefix Tab` | Last window; `prefix H` / `prefix L` previous / next |
+| `prefix z` | Zoom the pane (status bar shows `zoom`) |
+| `prefix x` | Kill pane, no confirmation |
+| `prefix g` / `` prefix ` `` / `prefix b` | lazygit / scratch shell / btop popups |
+| `prefix v` | Copy mode: `v` select, `Ctrl-v` block, `y` yank to the system clipboard |
+| `prefix Ctrl-l` | Clear the screen (plain `Ctrl-l` is navigation) |
+| `prefix r` | Reload tmux.conf |
+| `prefix d` | Detach |
+
+The config is plugin-free: no TPM to install. Details worth knowing:
+
+- Yanks go to the macOS clipboard through OSC 52, which also works from tmux on a remote machine.
+- `extended-keys` and `allow-passthrough` let kitty's key encoding and images reach nvim inside tmux.
+- The status bar sits on top and is transparent so the kitty wallpaper shows through; it
+  turns the session badge into an icon while the prefix is pressed.
+- Closing the last window of a session moves you to another session instead of dropping out of tmux.
+- Machine-specific tweaks go in `~/.config/tmux/local.conf` (not tracked).
+- Shell-side trade-off: in a shell pane, `Ctrl-l` and `Ctrl-k` belong to navigation, so
+  use `prefix Ctrl-l` to clear and `Ctrl-u` / `Ctrl-e` instead of kill-line.
+
+### Shell extras (`shell/ricing.sh`)
+
+`tm`, `ta`, `ll`/`la`/`tree` (eza), `cat` (bat), `z <dir>` (zoxide), `Ctrl-R` / `Ctrl-T` / `Alt-C`
+(fzf history, files, cd), `mkcd`, `ports`, `weather`, `reload`. zsh-autosuggestions (grey
+inline completion, accept with →) and zsh-syntax-highlighting are loaded when installed.
+
+### Recommended extra tools
+
+Everything degrades gracefully when these are missing; each one is worth installing:
+
+```bash
+brew install lazygit git-delta btop yazi tealdeer atuin direnv \
+             zsh-autosuggestions zsh-syntax-highlighting
+```
+
+- **lazygit**: terminal git UI; `prefix g` opens it over the current project.
+- **git-delta**: syntax-highlighted side-by-side diffs for `git diff`/`log`/`show`.
+  Enable with `git config --global core.pager delta && git config --global interactive.diffFilter 'delta --color-only'`.
+- **btop**: process/CPU/GPU monitor; `prefix b`.
+- **yazi**: fast file manager with image previews in kitty.
+- **tealdeer** (`tldr tar`): example-first man pages.
+- **atuin**: searchable shell history in SQLite, optionally synced across machines (replaces `Ctrl-R`).
+- **direnv**: per-project env vars and auto-activating venvs via `.envrc`.
+- **zsh-autosuggestions / zsh-syntax-highlighting**: fish-style suggestions and live command colouring in zsh.
 
 ## Keymaps
 
@@ -61,8 +162,13 @@ Leader is <kbd>Space</kbd>.
 | `<leader>q` | Quit |
 | `jk` (insert) | Escape to normal mode |
 | `<leader>o` / `<leader>p` | Split vertical / horizontal |
-| `<C-h/j/k/l>` | Move between windows |
-| `<C-arrows>` | Resize window |
+| `<C-h/j/k/l>` | Move between windows and tmux panes (smart-splits) |
+| `<A-h/j/k/l>` / `<C-arrows>` | Resize window (crosses into tmux too) |
+| `<leader><leader>h/j/k/l` | Swap buffer with the neighbouring window |
+| `s` / `S` | Flash: jump to any visible spot / select a treesitter node |
+| `<Esc>` | Clear search highlight |
+| visual `J` / `K` | Move selected lines down / up |
+| `<leader>?` | Show buffer-local keymaps (press `<leader>` and wait for all of them) |
 | `<leader>f` | Format file (or selection in visual mode) |
 | `<F7>` | Floating terminal |
 
@@ -71,10 +177,25 @@ Leader is <kbd>Space</kbd>.
 | Key | Action |
 | --- | --- |
 | `<leader>e` / `<leader>r` | Toggle / focus Neo-tree |
-| `<leader>ff` | Find files |
-| `<leader>fg` | Live grep |
-| `<leader>fb` | Buffers |
+| `<leader>ff` / `<leader>fr` | Find files (incl. hidden) / recent files |
+| `<leader>fg` / `<leader>fw` | Live grep / grep word under cursor |
+| `<leader>/` | Fuzzy search in the current buffer |
+| `<leader>fb` / `<leader>fh` / `<leader>fk` | Buffers / help / keymaps |
+| `<leader>fd` / `<leader>ft` | Diagnostics / TODO comments |
+| `<leader>f.` | Resume the last search |
 | `<leader>fs` / `<leader>fc` | Git status / commits |
+
+Telescope uses the native fzf sorter, so fzf syntax works in every picker:
+`'exact`, `^prefix`, `suffix$`, `!exclude`.
+
+### Diagnostics & TODOs (Trouble)
+
+| Key | Action |
+| --- | --- |
+| `<leader>xx` / `<leader>xb` | Diagnostics for project / buffer |
+| `<leader>xs` / `<leader>xr` | Symbols outline / LSP references side panel |
+| `<leader>xq` / `<leader>xt` | Quickfix list / all TODOs |
+| `]t` / `[t` | Next / previous TODO comment |
 
 ### LSP
 
@@ -242,7 +363,7 @@ Things learned running long jobs and Claude Code sessions over ssh from kitty.
   - or install it once by hand from the laptop:
     `infocmp -a xterm-kitty | ssh host tic -x -o ~/.terminfo /dev/stdin`;
   - or, as a stopgap, start tmux with `TERM=xterm-256color tmux ...`.
-- **Detach, don't babysit.** `Ctrl+B d` detaches; `tmux attach -t NAME` (or the
+- **Detach, don't babysit.** `prefix d` (`Ctrl-Space d` or `Ctrl-b d`) detaches; `tmux attach -t NAME` (or the
   launcher below) gets you back. Jobs and sessions survive dropped ssh and laptop sleep.
 - **Long-running Claude Code sessions: `tmux/claude-tmux`.** Starts `claude` detached
   in a named tmux session with Remote Control on, so the same conversation can be

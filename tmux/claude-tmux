@@ -6,7 +6,7 @@
 #   claude-tmux start      start detached only
 #   claude-tmux fresh      start a NEW conversation and make it the saved one
 #   claude-tmux status     show the saved session id and whether tmux is running
-#   detach: Ctrl+B then d      reattach: claude-tmux
+#   detach: Ctrl-Space d (or Ctrl-b d)      reattach: claude-tmux
 #
 # Settings (environment):
 #   CLAUDE_TMUX_SESSION   tmux session name           (default: claude)

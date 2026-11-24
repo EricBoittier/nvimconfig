@@ -1,0 +1,13 @@
+-- Jump anywhere on screen: s + 2 chars + label. S = select a treesitter node.
+-- Also labels f/F/t/T and / search results.
+return {
+	"folke/flash.nvim",
+	event = "VeryLazy",
+	opts = { modes = { search = { enabled = true } } },
+	keys = {
+		{ "s", mode = { "n", "x", "o" }, function() require("flash").jump() end, desc = "Flash jump" },
+		{ "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash treesitter" },
+		{ "r", mode = "o", function() require("flash").remote() end, desc = "Remote flash" },
+		{ "R", mode = { "o", "x" }, function() require("flash").treesitter_search() end, desc = "Treesitter search" },
+	},
+}

@@ -1,0 +1,69 @@
+#!/usr/bin/env bash
+# tm — fuzzy tmux sessionizer. One session per project, opened in a ready layout.
+#
+#   tm               pick a running session or a project dir (zoxide history + ~/Documents/github)
+#   tm <dir>         open/attach the session for that directory
+#   tm --sessions    pick among running sessions only (tmux: prefix s)
+#
+# New sessions get window 1 "edit" (nvim) and window 2 "sh" (shell), cwd = project.
+# Inside tmux it switches client; outside it attaches. Extra roots: TM_ROOTS="dir1:dir2".
+set -euo pipefail
+
+command -v tmux >/dev/null || { echo "tm: tmux not installed" >&2; exit 1; }
+
+roots() {
+  local r
+  IFS=: read -ra r <<< "${TM_ROOTS:-$HOME/Documents/github:$HOME/Documents}"
+  for d in "${r[@]}"; do [ -d "$d" ] && printf '%s\n' "$d"; done
+  return 0
+}
+
+candidates() {
+  # tab-separated: kind <TAB> label <TAB> value. Running sessions first, then
+  # frecent dirs (zoxide), then project roots one level deep.
+  tmux list-sessions -F $'S\t  #{session_name}#{?session_attached, (attached),}\t#{session_name}' 2>/dev/null || true
+  [ "${1:-}" = sessions ] && return
+  { command -v zoxide >/dev/null && zoxide query -l 2>/dev/null | head -200
+    roots | while read -r d; do find "$d" -mindepth 1 -maxdepth 1 -type d ! -name '.*' 2>/dev/null; done
+  } | awk -v home="$HOME" '!seen[$0]++ { l=$0; sub("^" home, "~", l); printf "D\t  %s\t%s\n", l, $0 }'
+  return 0
+}
+
+pick() {
+  command -v fzf >/dev/null || { echo "tm: fzf not installed" >&2; exit 1; }
+  local mode=${1:-all}
+  candidates "$mode" | fzf --delimiter $'\t' --with-nth 2 --prompt ' tm  ' \
+    --height 100% --reverse --border rounded --no-sort \
+    --header 'enter: open · ctrl-x: kill session' \
+    --bind "ctrl-x:execute-silent([ {1} = S ] && tmux kill-session -t ={3})+reload($0 --list $mode)" \
+    --preview '[ {1} = S ] && tmux capture-pane -ep -t ={3} || { command -v eza >/dev/null && eza -a --icons=always --group-directories-first --color=always {3} || ls -a {3}; }' \
+    --preview-window 'right,55%,border-left'
+}
+
+target=""
+case "${1:-}" in
+  --list)     [ "${2:-all}" = sessions ] && candidates sessions || candidates; exit 0 ;;
+  --sessions) target=$(pick sessions) || exit 0 ;;
+  "")         target=$(pick) || exit 0 ;;
+  *)          target=$'D\t\t'"$1" ;;
+esac
+[ -z "$target" ] && exit 0
+kind=${target%%$'\t'*}
+value=${target##*$'\t'}
+
+if [ "$kind" = S ]; then                  # an existing session
+  name=$value
+else                                      # a directory
+  dir=$(cd "${value/#\~/$HOME}" && pwd)
+  name=$(basename "$dir" | tr '.: ' '___')
+  if ! tmux has-session -t "=$name" 2>/dev/null; then
+    tmux new-session -d -s "$name" -c "$dir" -n edit "${EDITOR:-nvim}; exec ${SHELL:-zsh}"
+    tmux new-window -d -t "$name:" -c "$dir" -n sh
+  fi
+fi
+
+if [ -n "${TMUX:-}" ]; then
+  tmux switch-client -t "=$name"
+else
+  exec tmux attach -t "=$name"
+fi
