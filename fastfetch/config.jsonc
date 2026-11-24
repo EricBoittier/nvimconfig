@@ -3,20 +3,26 @@
   "logo": {
     "type": "auto",
     "padding": { "top": 1, "left": 3, "right": 3 },
-    "color": { "1": "magenta", "2": "cyan" }
+    "color": {
+      "1": "38;2;166;218;149", "2": "38;2;238;212;159", "3": "38;2;245;169;127",
+      "4": "38;2;237;135;150", "5": "38;2;198;160;246", "6": "38;2;138;173;244"
+    }
   },
   "display": {
-    "separator": "  ",
-    "color": { "keys": "magenta", "title": "cyan" },
-    "key": { "width": 11 },
-    "bar": { "char": { "elapsed": "▰", "total": "▱" } },
+    "separator": " ",
+    "color": { "keys": "38;2;198;160;246", "title": "1;38;2;145;215;227", "output": "38;2;202;211;245" },
+    "key": { "width": 13 },
+    "bar": {
+      "char": { "elapsed": "▰", "total": "▱" },
+      "color": { "elapsed": "38;2;145;215;227", "total": "38;2;91;96;120", "border": "38;2;110;115;141" }
+    },
     "percent": { "type": 3 },
     "size": { "binaryPrefix": "si" }
   },
   "modules": [
     "break",
-    { "type": "title", "format": "{user-name}@{host-name}" },
-    { "type": "custom", "format": "{#90}─────────────────────────────────────────" },
+    { "type": "title", "format": "{#1;38;2;145;215;227}{user-name}{#38;2;110;115;141}@{#1;38;2;198;160;246}{host-name}" },
+    { "type": "custom", "format": "{#38;2;110;115;141}─────────────────────────────────────────" },
     { "type": "os", "key": "  distro" },
     { "type": "kernel", "key": "  kernel" },
     { "type": "uptime", "key": "  uptime" },
