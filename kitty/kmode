@@ -3,7 +3,7 @@
 # Usage: kmode [dark|light|warm|redshift|contrast|auto]   (no arg = list)
 # Add your own: drop any theme file into ~/.config/kitty/modes/<name>.conf
 set -euo pipefail
-CFG="$HOME/.config/kitty"; MODES="$CFG/modes"
+CFG="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}"; MODES="$CFG/modes"
 
 if [[ $# -eq 0 ]]; then
   echo "current: $(cat "$CFG/.kmode" 2>/dev/null || echo unknown)"
