@@ -15,7 +15,8 @@
 # What it does (safe to re-run; anything it replaces is moved to <name>.bak-<date>):
 #   1. picks the config root: $XDG_CONFIG_HOME, else ~/.config, else ~/.config-writable
 #      when ~/.config cannot be written (managed machines);
-#   2. links nvim, kitty, fastfetch, starship.toml into it and claude-tmux into ~/.local/bin;
+#   2. links nvim, kitty, tmux.conf, fastfetch, starship.toml into it and claude-tmux,
+#      tm, kmode into ~/.local/bin;
 #   3. adds one marked block to ~/.bashrc and/or ~/.zshrc that sources shell/ricing.sh;
 #   4. installs tools. Linux: release binaries into ~/.local (no root), plus distro
 #      packages with --sudo. macOS: Homebrew.
@@ -29,7 +30,7 @@ for a in "$@"; do
     --no-tools) TOOLS=0 ;;
     --no-kitty) KITTY=0 ;;
     --dry-run) DRY=1 ;;
-    -h|--help) sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown option: $a (see --help)" >&2; exit 2 ;;
   esac
 done
@@ -45,6 +46,13 @@ note() { printf '    %s\n' "$*"; }
 warn() { WARN+=("$*"); printf '\033[1;33m !! \033[0m %s\n' "$*"; }
 run()  { if (( DRY )); then printf '    [dry-run] %s\n' "$*"; else "$@"; fi; }
 have() { command -v "$1" >/dev/null 2>&1 || [[ -x $BIN/$1 ]]; }
+nvim_ok() {  # an nvim >= 0.11 is reachable (the config uses vim.lsp.config)
+  local n v
+  n=$(PATH=$BIN:$PATH command -v nvim) || return 1
+  v=$("$n" --version 2>/dev/null | sed -n '1s/^NVIM v\([0-9]*\)\.\([0-9]*\).*/\1 \2/p')
+  [[ -n $v ]] || return 1
+  set -- $v; (( $1 > 0 || $2 >= 11 ))
+}
 
 # ---- 1. config root ----------------------------------------------------------
 
@@ -87,7 +95,10 @@ link "$REPO"                        "$CFG/nvim"
 link "$REPO/kitty"                  "$CFG/kitty"
 link "$REPO/fastfetch"              "$CFG/fastfetch"
 link "$REPO/starship/starship.toml" "$CFG/starship.toml"
+run mkdir -p "$CFG/tmux"
+link "$REPO/tmux/tmux.conf"         "$CFG/tmux/tmux.conf"
 link "$REPO/tmux/claude-tmux"       "$BIN/claude-tmux"
+link "$REPO/tmux/tm"                "$BIN/tm"
 link "$REPO/kitty/kmode"            "$BIN/kmode"
 
 # kitty/theme.conf is machine-local (gitignored). Seed it from an older config if one
@@ -180,7 +191,7 @@ tools_linux() {
   fi
 
   say "user-space tools -> ~/.local"
-  have nvim || opt_install nvim "$(gh_dl neovim/neovim "nvim-linux-$a_nvim.tar.gz")" /bin/nvim
+  nvim_ok || opt_install nvim "$(gh_dl neovim/neovim "nvim-linux-$a_nvim.tar.gz")" /bin/nvim
   if ! have tree-sitter; then
     if (( DRY )); then note "[dry-run] tree-sitter"; else
       fetch "$(gh_dl tree-sitter/tree-sitter "tree-sitter-linux-$a_ts.gz")" | gunzip > "$BIN/tree-sitter" \
@@ -247,12 +258,14 @@ fi
 
 # ---- 5. nvim plugins ---------------------------------------------------------
 
-NVIM=$(command -v nvim || true); [[ -z $NVIM && -x $BIN/nvim ]] && NVIM=$BIN/nvim
+NVIM=$(PATH=$BIN:$PATH command -v nvim || true)
 if (( TOOLS )) && [[ -n $NVIM ]]; then
   say "syncing nvim plugins to lazy-lock.json"
-  # The first start installs missing plugins and may rewrite the lockfile from what it
-  # found, so put the tracked lockfile back before restoring to it.
-  if (( ! DRY )); then
+  # Installing missing plugins rewrites the lockfile from what is on disk, so the tracked
+  # lockfile is put back before restoring to it. A lockfile with local edits is left alone.
+  if (( ! DRY )) && ! git -C "$REPO" diff --quiet -- lazy-lock.json 2>/dev/null; then
+    warn "lazy-lock.json has local changes: plugins not synced (commit or discard them, then re-run)"
+  elif (( ! DRY )); then
     export XDG_CONFIG_HOME=$CFG PATH=$BIN:$PATH
     "$NVIM" --headless "+Lazy! install" +qa >/dev/null 2>&1 || true
     git -C "$REPO" checkout -- lazy-lock.json 2>/dev/null || true

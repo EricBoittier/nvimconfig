@@ -121,7 +121,7 @@ mkcd() { mkdir -p -- "$1" && cd -- "$1"; }
 
 # ---- tmux workflow (see README "Workflow") ------------------------------------
 
-alias tm="$HOME/.config/nvim/tmux/tm"            # fuzzy project/session picker
+alias tm="$_rice_cfg/nvim/tmux/tm"            # fuzzy project/session picker
 alias ta='tmux attach || tm'                       # back to where you were
 
 # ---- zsh: autosuggestions + syntax highlighting (when installed) -------------

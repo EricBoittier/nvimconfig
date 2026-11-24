@@ -26,7 +26,7 @@ git clone https://github.com/EricBoittier/nvimconfig.git ~/nvimconfig   # any lo
 ~/nvimconfig/install.sh --sudo     # also install system packages (apt/dnf/pacman)
 ```
 
-`install.sh` links nvim, kitty, fastfetch and starship into the config root, adds one
+`install.sh` links nvim, kitty, tmux, fastfetch and starship into the config root, adds one
 marked block to `~/.bashrc` / `~/.zshrc` that sources `shell/ricing.sh`, installs the
 tools, and syncs plugins to `lazy-lock.json`. It is safe to re-run, and anything it
 replaces is moved to `<name>.bak-<date>`.
