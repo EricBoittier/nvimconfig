@@ -82,7 +82,7 @@ fi
 # ---- aliases (modern replacements, only when installed) ----------------------
 
 if command -v eza >/dev/null 2>&1; then
-  alias ls='eza --group-directories-first --icons=auto'
+  # ls stays GNU: eza's -t takes a FIELD argument, so `ls -rtlh` breaks under eza.
   alias ll='eza -lh --git --group-directories-first --icons=auto'
   alias la='eza -la --git --group-directories-first --icons=auto'
   alias tree='eza --tree --icons=auto'

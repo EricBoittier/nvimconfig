@@ -294,7 +294,7 @@ with auto-wrapping in `tex` buffers.
 
 | File | Purpose |
 | --- | --- |
-| `kitty.conf` | Main config (FiraCode 17pt, 0.72 opacity + blur, aurora wallpaper, remote control on) |
+| `kitty.conf` | Main config (FiraCode 17pt, 0.85 opacity + blur, aurora wallpaper, remote control on) |
 | `backgrounds/aurora.png` | Wallpaper behind the translucent background (Dracula-palette blobs) |
 | `theme.conf` | Active color theme (Dracula, from [dexpota/kitty-themes](https://github.com/dexpota/kitty-themes)) |
 | `open-actions.conf` | What clicked links open (web/HTML/PDF/images → Chrome, dirs → Finder) |
