@@ -7,7 +7,6 @@ return {
 		delay = 300,
 		spec = {
 			{ "<leader>c", group = "code / claude" },
-			{ "<leader>e", group = "explorer" },
 			{ "<leader>f", group = "find" },
 			{ "<leader>g", group = "git" },
 			{ "<leader>h", group = "hunks" },

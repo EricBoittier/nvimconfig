@@ -196,7 +196,7 @@ Leader is <kbd>Space</kbd>.
 
 | Key | Action |
 | --- | --- |
-| `<leader>e` / `<leader>r` | Toggle / focus Neo-tree |
+| `<leader>e` / `<leader>r` / `<leader>E` | Toggle / focus Neo-tree / reveal the current file in it |
 | `<leader>ff` / `<leader>fr` | Find files (incl. hidden) / recent files |
 | `<leader>fg` / `<leader>fw` | Live grep / grep word under cursor |
 | `<leader>/` | Fuzzy search in the current buffer |
@@ -268,7 +268,7 @@ Run `/ide` inside Claude if it doesn't connect on its own.
 | `<leader>cr` / `<leader>cC` | Resume a conversation / continue the last one |
 | `<leader>cm` | Pick model |
 | `<leader>cf` | Add current file to context |
-| `<leader>cs` (visual) | Send selection; in Neo-tree/nvim-tree adds the file under cursor |
+| `<leader>cs` (visual) | Send selection; in Neo-tree adds the file under cursor |
 | `<leader>cy` / `<leader>cn` | Accept / reject Claude's proposed diff |
 
 `<leader>ca` stays LSP code actions.

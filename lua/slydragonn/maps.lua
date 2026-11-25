@@ -16,6 +16,7 @@ map("i", "jk", "<ESC>")
 -- NeoTree
 map("n", "<leader>e", "<CMD>Neotree toggle<CR>")
 map("n", "<leader>r", "<CMD>Neotree focus<CR>")
+map("n", "<leader>E", "<CMD>Neotree reveal<CR>") -- open the tree at the current file
 
 -- New Windows
 map("n", "<leader>o", "<CMD>vsplit<CR>")

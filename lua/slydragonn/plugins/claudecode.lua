@@ -15,7 +15,7 @@ return {
 		{ "<leader>cm", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Claude: select model" },
 		{ "<leader>cf", "<cmd>ClaudeCodeAdd %<cr>", desc = "Claude: add current file" },
 		{ "<leader>cs", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Claude: send selection" },
-		{ "<leader>cs", "<cmd>ClaudeCodeTreeAdd<cr>", desc = "Claude: add file from tree", ft = { "NvimTree", "neo-tree" } },
+		{ "<leader>cs", "<cmd>ClaudeCodeTreeAdd<cr>", desc = "Claude: add file from tree", ft = { "neo-tree" } },
 		{ "<leader>cy", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Claude: accept diff" },
 		{ "<leader>cn", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Claude: reject diff" },
 	},
