@@ -8,6 +8,9 @@ pack/
 # Local overrides, not shared between machines
 lua/slydragonn/local.lua
 
+# Personal to-dos shown on the start screen (see plugins/alpha.lua)
+reminders.md
+
 # Editor / OS noise
 *.swp
 *.swo
