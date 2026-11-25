@@ -8,6 +8,10 @@ return {
 		-- "3rd/image.nvim", -- Optional image support in preview window: See `# Preview Mode` for more information
 	},
 	opts = {
+		filesystem = {
+			-- keep the tree's selection on the buffer being edited
+			follow_current_file = { enabled = true },
+		},
 		commands = {
 			-- open Neogit for the folder under the cursor (or the file's folder)
 			neogit = function(state)
