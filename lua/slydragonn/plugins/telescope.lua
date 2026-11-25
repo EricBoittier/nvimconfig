@@ -1,6 +1,6 @@
 return {
 	"nvim-telescope/telescope.nvim",
-	tag = "0.1.6",
+	tag = "v0.2.2", -- 0.1.x calls nvim-treesitter APIs that its main branch removed
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 		-- native fzf sorter: faster, and supports fzf syntax ('exact ^prefix suffix$ !not)
