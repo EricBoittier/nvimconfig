@@ -84,11 +84,11 @@ local HEAD_ROWS = 13
 -- Projects offered as number keys. Only directories that exist on this
 -- machine are shown, so the list can cover several computers.
 local PROJECTS = {
-	{ "LongRangeBench", "~/LongRangeBench" },
-	{ "karml", "~/karml-main" },
-	{ "metatomic", "~/metatomic" },
-	{ "metawork", "~/metawork" },
-	{ "MD trajectories", "~/mlmm_traj" },
+-- 	{ "LongRangeBench", "~/LongRangeBench" },
+-- 	{ "karml", "~/karml-main" },
+-- 	{ "metatomic", "~/metatomic" },
+-- 	{ "metawork", "~/metawork" },
+-- 	{ "MD trajectories", "~/mlmm_traj" },
 }
 
 -- Open "- [ ]" items from this file are listed on the start screen. The file
@@ -96,12 +96,7 @@ local PROJECTS = {
 local REMINDERS = vim.fn.stdpath("config") .. "/reminders.md"
 
 local QUIPS = {
-	"∇θ L → 0, eventually",
-	"E = Σ E_i + long-range, don't forget the long-range",
-	"check the units before blaming the model",
-	"one more epoch never hurt anyone (citation needed)",
-	"energy conserved? then ship it",
-	"plot the data before fitting the data",
+	"Eric Boittier says: \"The cat is the only animal without visible means of support who still manages to find a living in the city.\"",
 }
 
 local WIDTH = 58
@@ -316,7 +311,7 @@ return {
 		local layout = {
 			gap,
 			header,
-			text("n e o v i m", "AlphaSection"),
+			text("G'Day Let's Get This Bread", "AlphaSection"),
 			gap,
 			actions,
 		}
