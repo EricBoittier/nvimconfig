@@ -68,12 +68,13 @@ local SHADE = {
 	"                   aaaaaa                 ",
 }
 
+-- Letter in the cat art → kmode palette role (see lua/slydragonn/kmode.lua).
 local TONES = {
-	a = "#e6e1cf",
-	b = "#9a98a0",
-	c = "#6b7684",
-	e = "#ffb454",
-	n = "#f07178",
+	a = "fg", -- outline
+	b = "dim", -- shading
+	c = "faint", -- deep shading
+	e = "orange", -- eyes
+	n = "red", -- nose
 }
 
 -- Rows 1..HEAD_ROWS are the head alone, shown when the window is too short
@@ -240,8 +241,9 @@ end
 -- Highlights -----------------------------------------------------------------
 
 local function set_highlights()
-	for tone, colour in pairs(TONES) do
-		vim.api.nvim_set_hl(0, "AlphaCat_" .. tone, { fg = colour })
+	local palette = require("slydragonn.kmode").palette
+	for tone, role in pairs(TONES) do
+		vim.api.nvim_set_hl(0, "AlphaCat_" .. tone, { fg = palette[role] })
 	end
 	-- Text follows the active colorscheme instead of fixed colours.
 	for name, target in pairs({

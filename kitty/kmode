@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # kmode — switch kitty colour mode and live-reload all kitty instances.
 # Usage: kmode [dark|light|warm|redshift|contrast|auto]   (no arg = list)
-# Add your own: drop any theme file into ~/.config/kitty/modes/<name>.conf
+# Add your own: drop any kitty theme file into ~/.config/kitty/modes/<name>.conf
+# nvim reads the same file (lua/slydragonn/kmode.lua), so both stay in sync.
 set -euo pipefail
 CFG="${KITTY_CONFIG_DIRECTORY:-${XDG_CONFIG_HOME:-$HOME/.config}/kitty}"; MODES="$CFG/modes"
 
@@ -29,5 +30,8 @@ else
 fi
 
 echo "$m" > "$CFG/.kmode"
-pkill -USR1 -x kitty || true   # SIGUSR1 makes kitty reload its config
-echo "kitty mode → $m"
+# SIGUSR1 makes kitty reload its config. Find PIDs with ps, not pkill: on macOS
+# `pkill -x kitty` does not match the app's process, so kitty was never reloaded.
+pids=$(ps -A -o pid= -o comm= | awk '{n=$2; sub(".*/", "", n)} n=="kitty" {print $1}')
+[[ -n $pids ]] && kill -USR1 $pids 2>/dev/null || true
+echo "kitty mode → $m  (nvim follows on focus, or run :Kmode)"

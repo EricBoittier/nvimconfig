@@ -1,73 +1,65 @@
+-- Statusline. Colours come from the kmode palette (lua/slydragonn/kmode.lua),
+-- so it follows `kmode` / `:Kmode` like the rest of nvim.
 return {
 	"nvim-lualine/lualine.nvim",
 	dependencies = { "nvim-tree/nvim-web-devicons" },
 	config = function()
 		local lualine = require("lualine")
 		local lazy_status = require("lazy.status") -- to configure lazy pending updates count
+		local kmode = require("slydragonn.kmode")
 
-		local colors = {
-			blue = "#65D1FF",
-			green = "#3EFFDC",
-			violet = "#FF61EF",
-			yellow = "#FFDA7B",
-			red = "#FF4A4A",
-			fg = "#c3ccdc",
-			bg = "#112638",
-			inactive_bg = "#2c3043",
-			semilightgray = "#8a92a7",
+		-- Mode → palette colour of the left-most block.
+		local MODE_COLOURS = {
+			normal = "blue",
+			insert = "green",
+			visual = "magenta",
+			command = "yellow",
+			replace = "red",
+			terminal = "cyan",
 		}
 
-		local my_lualine_theme = {
-			normal = {
-				a = { bg = colors.blue, fg = colors.bg, gui = "bold" },
-				b = { bg = colors.bg, fg = colors.fg },
-				c = { bg = colors.bg, fg = colors.fg },
-			},
-			insert = {
-				a = { bg = colors.green, fg = colors.bg, gui = "bold" },
-				b = { bg = colors.bg, fg = colors.fg },
-				c = { bg = colors.bg, fg = colors.fg },
-			},
-			visual = {
-				a = { bg = colors.violet, fg = colors.bg, gui = "bold" },
-				b = { bg = colors.bg, fg = colors.fg },
-				c = { bg = colors.bg, fg = colors.fg },
-			},
-			command = {
-				a = { bg = colors.yellow, fg = colors.bg, gui = "bold" },
-				b = { bg = colors.bg, fg = colors.fg },
-				c = { bg = colors.bg, fg = colors.fg },
-			},
-			replace = {
-				a = { bg = colors.red, fg = colors.bg, gui = "bold" },
-				b = { bg = colors.bg, fg = colors.fg },
-				c = { bg = colors.bg, fg = colors.fg },
-			},
-			inactive = {
-				a = { bg = colors.inactive_bg, fg = colors.semilightgray, gui = "bold" },
-				b = { bg = colors.inactive_bg, fg = colors.semilightgray },
-				c = { bg = colors.inactive_bg, fg = colors.semilightgray },
-			},
-		}
+		local function theme()
+			local p = kmode.palette
+			local t = {}
+			for mode, role in pairs(MODE_COLOURS) do
+				t[mode] = {
+					a = { bg = p[role], fg = p.bg, gui = "bold" },
+					b = { bg = p.surface, fg = p[role] },
+					c = { bg = p.surface, fg = p.fg },
+				}
+			end
+			t.inactive = {
+				a = { bg = p.surface, fg = p.dim, gui = "bold" },
+				b = { bg = p.surface, fg = p.dim },
+				c = { bg = p.surface, fg = p.dim },
+			}
+			return t
+		end
 
-		-- configure lualine with modified theme
-		lualine.setup({
-			options = {
-				theme = my_lualine_theme,
-				globalstatus = true,
-			},
-			sections = {
-				lualine_x = {
-					{
-						lazy_status.updates,
-						cond = lazy_status.has_updates,
-						color = { fg = "#ff9e64" },
-					},
-					{ "encoding" },
-					{ "fileformat" },
-					{ "filetype" },
+		local function setup()
+			lualine.setup({
+				options = {
+					theme = theme(),
+					globalstatus = true,
 				},
-			},
-		})
+				sections = {
+					lualine_x = {
+						{
+							lazy_status.updates,
+							cond = lazy_status.has_updates,
+							color = function()
+								return { fg = kmode.palette.orange }
+							end,
+						},
+						{ "encoding" },
+						{ "fileformat" },
+						{ "filetype" },
+					},
+				},
+			})
+		end
+
+		setup()
+		vim.api.nvim_create_autocmd("User", { pattern = "KmodeChanged", callback = setup })
 	end,
 }

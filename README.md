@@ -1,7 +1,7 @@
 # Neovim config
 
 My personal Neovim setup — [lazy.nvim](https://github.com/folke/lazy.nvim) plugin
-manager, [kitty-themes](https://github.com/odysseyalive/kitty-themes.nvim) (SeaShells) theme, LSP via
+manager, colours that follow the kitty mode (`kmode`, via [kitty-themes.nvim](https://github.com/odysseyalive/kitty-themes.nvim)), LSP via
 Mason, and a LaTeX workflow built on VimTeX + Sioyek.
 
 Originally based on [slydragonn/nvim-lazy](https://github.com/slydragonn/nvim-lazy)
@@ -230,6 +230,17 @@ Telescope uses the native fzf sorter, so fzf syntax works in every picker:
 | `[d` / `]d` | Previous / next diagnostic |
 | `<leader>rs` | Restart LSP |
 
+**Underlined text** has a coloured curly underline: red = error, yellow =
+warning, blue = info, cyan = hint (from the LSP), or a spelling mistake when
+`:set spell` is on.
+
+- Read the message: put the cursor on it and press `<leader>d` (floating
+  window; press it again to jump in and scroll or copy).
+- Fix it: `<leader>ca` for the LSP's suggested fixes; for spelling, `z=` lists
+  corrections, `zg` adds the word to your dictionary.
+- Move between them: `]d` / `[d` (diagnostics), `]s` / `[s` (spelling).
+- See them all: `<leader>xb` (this file) or `<leader>xx` (project).
+
 ### Git & sessions
 
 | Key | Action |
@@ -290,27 +301,92 @@ with auto-wrapping in `tex` buffers.
 
 ## Kitty
 
-`kitty/` holds my [kitty](https://sw.kovidgoyal.net/kitty/) terminal config:
+`kitty/` holds my [kitty](https://sw.kovidgoyal.net/kitty/) terminal config
+(`install.sh` links it to `~/.config/kitty`):
 
 | File | Purpose |
 | --- | --- |
 | `kitty.conf` | Main config (FiraCode 17pt, 0.85 opacity + blur, aurora wallpaper, remote control on) |
-| `backgrounds/aurora.png` | Wallpaper behind the translucent background (Dracula-palette blobs) |
-| `theme.conf` | Active color theme (Dracula, from [dexpota/kitty-themes](https://github.com/dexpota/kitty-themes)) |
+| `backgrounds/aurora.png` | Wallpaper behind the translucent background |
+| `modes/*.conf` | The colour modes `kmode` can switch between (one kitty theme file each) |
+| `kmode` | Colour-mode switcher, see below |
+| `theme.conf` | Machine-local base theme, not tracked (seeded from `modes/default.conf`) |
 | `open-actions.conf` | What clicked links open (web/HTML/PDF/images → Chrome, dirs → Finder) |
 | `startup.conf` / `startup.sh` | Startup session |
-| `kmode` + `modes/` | `kmode dark\|light\|warm\|redshift\|contrast\|auto` swaps colour mode and live-reloads every kitty |
 
-To install on a new machine, symlink it into place:
+## Colours and themes
+
+One palette drives both kitty and nvim. You pick a **mode**; kitty and nvim
+both read the same `kitty/modes/<mode>.conf`.
+
+### Switch mode
 
 ```bash
-ln -s ~/.config/nvim/kitty ~/.config/kitty
+kmode            # show the current mode and list the available ones
+kmode light      # switch: kitty reloads at once, in every window
+kmode auto       # follow macOS light/dark appearance
 ```
 
-Locally `theme.conf` is a symlink into a clone of `kitty-themes`; the repo
-stores the resolved file so it works without that clone. To try other themes,
-`git clone https://github.com/dexpota/kitty-themes ~/.config/kitty/kitty-themes`
-and re-point `theme.conf`.
+Inside nvim, `:Kmode light` does the same (tab-completes mode names), and
+`:Kmode` alone re-applies the current one. Already-open nvims pick the new mode
+up the next time they get focus.
+
+Modes shipped: `default` (the base theme), `dark` (Catppuccin Mocha), `light`
+(Catppuccin Latte), `warm` (Gruvbox Dark), `contrast` (Modus Vivendi, WCAG AAA),
+`redshift` (red-only, for night).
+
+### Add or change a mode
+
+1. Get a kitty theme file, e.g. from
+   [kovidgoyal/kitty-themes](https://github.com/kovidgoyal/kitty-themes/tree/master/themes)
+   or `kitten themes --dump-theme "Tokyo Night"`.
+2. Save it as `kitty/modes/<name>.conf` (only the `background`, `foreground`,
+   `cursor`, `selection_*` and `color0`–`color15` lines matter).
+3. `kmode <name>`.
+
+To change a mode's colours, edit its file and run `kmode <name>` again.
+
+### Change colours everywhere
+
+Every colour in nvim comes from one palette in `lua/slydragonn/kmode.lua`,
+built from the current mode file. Nothing else hard-codes a hex value.
+
+- **One mode**: edit `kitty/modes/<name>.conf`, then `kmode <name>`. kitty and
+  nvim both change.
+- **All modes**: edit `ROLES` at the top of `kmode.lua`. It maps the names
+  used everywhere (`red`, `green`, `yellow`, `blue`, `magenta`, `cyan`,
+  `orange`, `dim`, `faint`, `surface`) to theme slots (`color1`, ...) or
+  derives them (e.g. `dim` = 55% foreground over background).
+- **Specific highlight groups** (diffs, Neogit, diagnostics, spelling,
+  selection): `fix_highlights()` in the same file.
+
+What uses the palette: the colorscheme, lualine (mode colour per vim mode, see
+`MODE_COLOURS` in `plugins/lualine.lua`), the start-screen cat (`TONES` in
+`plugins/alpha.lua`), error/spelling underlines, git signs, diffs and Neogit.
+To make another plugin follow, read `require("slydragonn.kmode").palette` and
+re-apply on the `User KmodeChanged` autocmd.
+
+### How it fits together
+
+- `kmode <name>` copies `modes/<name>.conf` to `current-theme.conf` (included
+  last in `kitty.conf`, so it wins), records the name in `.kmode`, and sends
+  kitty `SIGUSR1` to reload. All three files are gitignored runtime state.
+- nvim reads `.kmode`, parses the same mode file, turns it into a colorscheme
+  with kitty-themes.nvim, then applies the palette fixes above and fires
+  `User KmodeChanged`.
+- nvim's background is transparent so the kitty wallpaper shows through. To
+  make it solid, set `transparent = false` in `lua/slydragonn/plugins/kitty.lua`.
+- Not mode-aware: the wallpaper and the starship prompt.
+
+### Troubleshooting
+
+- **Nothing changes after `kmode`**: run `kmode` with no argument to check the
+  mode was recorded, then reload kitty by hand with `ctrl+shift+f5`
+  (`cmd+ctrl+,` on macOS).
+- **nvim did not follow**: run `:Kmode`. It updates on focus, which needs
+  `focus-events on` when running inside tmux (already set in `tmux/tmux.conf`).
+- **Colours look washed out**: the wallpaper shows through. Raise
+  `background_tint` (towards 1.0) or `background_opacity` in `kitty.conf`.
 
 ## Ricing (bash, prompt, opening screen)
 
@@ -355,8 +431,7 @@ brew install fzf zoxide eza fd bat starship fastfetch
 
 Ubuntu installs `bat` as `batcat` and `fd` as `fdfind`; the layer handles both names.
 
-The kitty `theme.conf` is machine-local and not tracked (see `.gitignore`), so on
-a new machine link a theme into place as described above, or kitty will fall back to its defaults.
+Colours are set per mode with `kmode`; see [Colours and themes](#colours-and-themes).
 
 Switching the wallpaper: drop a PNG into `kitty/backgrounds/` and point
 `background_image` at it in `kitty.conf`. Lower `background_opacity` for more
