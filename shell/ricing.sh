@@ -119,6 +119,19 @@ fi
 if (( _rice_zsh )); then alias reload='exec zsh'; else alias reload='exec bash'; fi
 mkcd() { mkdir -p -- "$1" && cd -- "$1"; }
 
+# One-shot opencode prompt with the Markdown answer rendered by glow.
+# Model overridable via OCR_MODEL; falls back to raw output without glow.
+if command -v opencode >/dev/null 2>&1; then
+  ocr() {
+    local model=${OCR_MODEL:-google/gemini-4-argon}
+    if command -v glow >/dev/null 2>&1; then
+      opencode run -m "$model" "$*" 2>/dev/null | glow -
+    else
+      opencode run -m "$model" "$*"
+    fi
+  }
+fi
+
 # ---- tmux workflow (see README "Workflow") ------------------------------------
 
 alias tm="$_rice_cfg/nvim/tmux/tm"            # fuzzy project/session picker

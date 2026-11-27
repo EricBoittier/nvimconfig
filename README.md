@@ -148,7 +148,7 @@ The config is plugin-free: no TPM to install. Details worth knowing:
 ### Shell extras (`shell/ricing.sh`)
 
 `tm`, `ta`, `ll`/`la`/`tree` (eza), `cat` (bat), `z <dir>` (zoxide), `Ctrl-R` / `Ctrl-T` / `Alt-C`
-(fzf history, files, cd), `mkcd`, `ports`, `weather`, `reload`. zsh-autosuggestions (grey
+(fzf history, files, cd), `mkcd`, `ocr "<prompt>"` (opencode answer rendered by glow; model via `OCR_MODEL`), `ports`, `weather`, `reload`. zsh-autosuggestions (grey
 inline completion, accept with →) and zsh-syntax-highlighting are loaded when installed.
 
 ### Recommended extra tools
