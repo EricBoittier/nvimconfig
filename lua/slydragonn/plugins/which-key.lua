@@ -6,11 +6,12 @@ return {
 		preset = "modern",
 		delay = 300,
 		spec = {
+			{ "<leader>a", group = "opencode" },
 			{ "<leader>c", group = "code / claude" },
 			{ "<leader>f", group = "find" },
 			{ "<leader>g", group = "git" },
 			{ "<leader>h", group = "hunks" },
-			{ "<leader>o", group = "opencode / split" },
+			{ "<leader>o", group = "octo / split" },
 			{ "<leader>r", group = "rename / restart" },
 			{ "<leader>w", group = "save / session" },
 			{ "<leader>x", group = "diagnostics" },

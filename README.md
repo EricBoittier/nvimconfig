@@ -148,8 +148,17 @@ The config is plugin-free: no TPM to install. Details worth knowing:
 ### Shell extras (`shell/ricing.sh`)
 
 `tm`, `ta`, `ll`/`la`/`tree` (eza), `cat` (bat), `z <dir>` (zoxide), `Ctrl-R` / `Ctrl-T` / `Alt-C`
-(fzf history, files, cd), `mkcd`, `ocr "<prompt>"` (opencode answer rendered by glow; model via `OCR_MODEL`), `ports`, `weather`, `reload`. zsh-autosuggestions (grey
+(fzf history, files, cd), `mkcd`, `ocr "<prompt>"` (opencode answer rendered by glow; model via `OCR_MODEL`), `pr-ci [num]`, `pr-co <num>`, `ports`, `weather`, `reload`. zsh-autosuggestions (grey
 inline completion, accept with →) and zsh-syntax-highlighting are loaded when installed.
+
+### PR workflow (Neogit + Diffview + Octo + OpenCode)
+
+- **Pick / inspect PRs**: `<leader>op` (`Octo pr list`), `<leader>oc` (`Octo pr checkout`), `<leader>ov` (`Octo pr checks`), or `pr-ci --watch` in a kitty/tmux pane.
+- **Triage with OpenCode**: run `/pr-review` (or `/pr-ci`) in OpenCode; `/pr-review` writes a risk-ranked quickfix list to `.git/review-triage.qf`.
+- **Walk the diff in Neovim**: `<leader>gt` loads the triage quickfix, `<leader>gd` opens `DiffviewOpen` against the auto-detected PR base (`<leader>gb` overrides `review_base`, `<leader>gc` walks commit-by-commit, `<leader>gx` closes), and `]h` / `[h` jump hunks.
+- **Ask OpenCode from Neovim**: `<leader>aa` (`@this`), `<leader>ab` (`@buffer`), `<leader>aq` (`@quickfix`), or `go` / `goo` to send a range/line straight to the running OpenCode session.
+- **Rebase / fixup / push**: `<leader>gg` opens Neogit (integrated with Diffview via `d`, interactive rebase via `r`, fixup via `c F`, force-with-lease push via `p -F`).
+- **Submit GitHub review**: `<leader>or` starts a local draft review, `<leader>oR` resumes it, and `<leader>os` submits it.
 
 ### Recommended extra tools
 

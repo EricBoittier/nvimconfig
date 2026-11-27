@@ -132,6 +132,12 @@ if command -v opencode >/dev/null 2>&1; then
   }
 fi
 
+# Quick GitHub PR helpers (require `gh`).
+if command -v gh >/dev/null 2>&1; then
+  pr-ci() { gh pr checks "$@"; }
+  pr-co() { gh pr checkout "$@"; }
+fi
+
 # ---- tmux workflow (see README "Workflow") ------------------------------------
 
 alias tm="$_rice_cfg/nvim/tmux/tm"            # fuzzy project/session picker

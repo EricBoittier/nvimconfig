@@ -13,6 +13,8 @@ return {
 	keys = {
 		{ "<leader>a", nil, desc = "OpenCode" },
 		{ "<leader>aa", function() require("opencode").ask("@this: ") end, mode = { "n", "x" }, desc = "OpenCode: ask about @this" },
+		{ "<leader>ab", function() require("opencode").ask("@buffer: ") end, mode = { "n", "x" }, desc = "OpenCode: ask about @buffer" },
+		{ "<leader>aq", function() require("opencode").ask("@quickfix: ") end, mode = "n", desc = "OpenCode: ask about @quickfix" },
 		{ "<leader>as", function() require("opencode").select() end, mode = { "n", "x" }, desc = "OpenCode: select prompt/action" },
 		{ "go", function() return require("opencode").operator("@this") end, mode = { "n", "x" }, expr = true, desc = "Send range to OpenCode" },
 		{ "goo", function() return require("opencode").operator("@this") .. "_" end, expr = true, desc = "Send line to OpenCode" },
